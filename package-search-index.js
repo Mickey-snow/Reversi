@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.reversi.client"},{"l":"com.reversi.common"},{"l":"com.reversi.server"},{"l":"com.reversi.server.events"}];updateSearchResults();

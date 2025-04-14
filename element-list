@@ -1,0 +1,4 @@
+com.reversi.client
+com.reversi.common
+com.reversi.server
+com.reversi.server.events
