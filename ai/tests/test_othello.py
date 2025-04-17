@@ -1,6 +1,5 @@
 import numpy as np
-import pytest
-from othello.othello import OthelloEnv
+from othello.env import OthelloEnv
 
 ##############################
 # Tests for OthelloEnv Class
@@ -41,7 +40,8 @@ def test_get_state_current_player():
     for both current player cases.
     """
     env = OthelloEnv()
-    # Current player is 1 (white) by default.
+
+    env.current_player = 1
     state = env.get_state()
     # First channel for white pieces, second for black pieces.
     np.testing.assert_array_equal(
@@ -73,10 +73,17 @@ def test_get_state_current_player():
 def test_valid_moves_initial():
     """
     Test that the valid_moves function returns the correct set of initial moves.
-    For an 8x8 Othello board the starting valid moves for white (player 1)
-    should be: (2,4), (3,5), (4,2), (5,3)
     """
     env = OthelloEnv()
+
+    env.current_player = -1
+    valid = env.valid_moves()
+    expected_moves = {(2, 3), (3, 2), (5, 4), (4, 5)}
+    assert (
+        set(valid) == expected_moves
+    ), f"Expected valid moves {expected_moves} but got {set(valid)}"
+
+    env.current_player = 1
     valid = env.valid_moves()
     expected_moves = {(2, 4), (3, 5), (4, 2), (5, 3)}
     assert (
@@ -90,6 +97,8 @@ def test_step_flip():
     pieces are flipped.
     """
     env = OthelloEnv()
+
+    env.current_player = 1
     # Choose a known valid move for white (player 1): (2,4)
     valid = env.valid_moves()
     assert (
@@ -120,7 +129,7 @@ def test_is_game_over():
     # Fill the board completely with 1's (white pieces)
     env.board = np.ones((env.board_size, env.board_size), dtype=int)
     assert (
-        env.is_game_over() == True
+        env.is_game_over()
     ), "Game should be over when the board is completely filled."
 
 
@@ -165,3 +174,13 @@ def test_get_winner():
     assert (
         env.get_winner() == 0
     ), "Game should be a tie when white and black have equal pieces."
+
+
+def test_count():
+    env = OthelloEnv()
+
+    assert env.count(1) == 2
+    assert env.count(-1) == 2
+
+    env.board[: env.board_size // 2, :] = 1
+    assert env.count(1) == 32 + 1

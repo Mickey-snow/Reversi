@@ -1,9 +1,5 @@
 import numpy as np
 
-##############################
-# Othello Environment
-##############################
-
 
 class OthelloEnv:
     def __init__(self):
@@ -18,8 +14,8 @@ class OthelloEnv:
         self.board[mid][mid] = 1
         self.board[mid - 1][mid] = -1
         self.board[mid][mid - 1] = -1
-        # Set starting player; convention: 1 plays first.
-        self.current_player = 1
+        # Set starting player; convention: black plays first
+        self.current_player = -1
         return self.get_state()
 
     def get_state(self):
@@ -111,6 +107,11 @@ class OthelloEnv:
         opp_valid = len(self.valid_moves())
         self.current_player *= -1
         return current_valid == 0 and opp_valid == 0
+
+    def count(self, player=None):
+        if player is None:
+            player = self.current_player
+        return np.sum(self.board == player)
 
     def get_winner(self):
         white = np.sum(self.board == 1)
