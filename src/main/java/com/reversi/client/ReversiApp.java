@@ -13,6 +13,7 @@ public class ReversiApp extends Application {
 
   private EventBus eventBus;
   private ServerSocket serverSocket;
+  private IController controller;
 
   private StackPane rootPane;
   private LobbyView lobbyView;
@@ -34,7 +35,7 @@ public class ReversiApp extends Application {
         getClass().getClassLoader().getResource("styles.css").toExternalForm();
 
     // Create an instance of the lobby view.
-    this.lobbyView = new LobbyView();
+    this.lobbyView = new LobbyView(this);
     lobbyView.setServerSocket(serverSocket);
     lobbyView.getMainPane().setVisible(true);
 
@@ -54,6 +55,18 @@ public class ReversiApp extends Application {
     primaryStage.show();
 
     serverSocket.connectToServer();
+  }
+
+  public void startLocalGame() {
+    lobbyView.getMainPane().setVisible(false);
+    gameView.getGamePane().setVisible(true);
+    // load model from resources
+    String modelPath =
+        getClass().getClassLoader().getResource("alphazero.onnx").getPath();
+
+    // Black always goes first
+    this.controller = new Controller(gameView, Player.Black, modelPath);
+    gameView.setController(controller);
   }
 
   class Listener implements EventListener<ServerMessage> {

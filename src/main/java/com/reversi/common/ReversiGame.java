@@ -97,6 +97,45 @@ public class ReversiGame {
   }
 
   /**
+   * Returns true if neither Black nor White has any valid moves remaining.
+   *
+   * @return whether the game is finished
+   */
+  public boolean isGameOver() {
+    // When both players have no moves, the game ends.
+    return board.getValidMoves(Player.Black).isEmpty() &&
+        board.getValidMoves(Player.White).isEmpty();
+  }
+
+  /**
+   * Determines the winner by counting discs on the board.
+   *
+   * @return Player.Black if Black has more discs,
+   *         Player.White if White has more,
+   *         or Player.None if tied
+   */
+  public Player getWinner() {
+    int blackCount = 0, whiteCount = 0;
+    for (int i = 0; i < Board.BOARD_SIZE; i++) {
+      for (int j = 0; j < Board.BOARD_SIZE; j++) {
+        Player p = board.get(i, j);
+        if (p == Player.Black) {
+          blackCount++;
+        } else if (p == Player.White) {
+          whiteCount++;
+        }
+      }
+    }
+    if (blackCount > whiteCount) {
+      return Player.Black;
+    } else if (whiteCount > blackCount) {
+      return Player.White;
+    } else {
+      return Player.None;
+    }
+  }
+
+  /**
    * Compares the provided object with this game instance for equality. Two game
    * instances are considered equal if they have the same board state and the
    * same current player.

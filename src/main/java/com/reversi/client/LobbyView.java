@@ -15,12 +15,17 @@ public class LobbyView {
   private TextField roomNameField;
   private Button joinButton;
   private Button createButton;
+  private Button botButton;
   private Label lobbyStatusLabel;
   private ListView<String> roomsListView;
 
   private ServerSocket serverSocket;
 
-  public LobbyView() {
+  // TODO: refactor this out
+  private ReversiApp app;
+
+  public LobbyView(ReversiApp app) {
+    this.app = app;
     createComponents();
     layoutComponents();
     attachListeners();
@@ -46,6 +51,9 @@ public class LobbyView {
     // List view for available rooms.
     roomsListView = new ListView<>();
     roomsListView.getStyleClass().add("rooms-list");
+
+    this.botButton = new Button("Play vs Bot");
+    botButton.setOnAction(e -> { app.startLocalGame(); });
   }
 
   private void layoutComponents() {
@@ -67,6 +75,7 @@ public class LobbyView {
     centerGrid.add(roomNameField, 1, 0);
     centerGrid.add(joinButton, 0, 1);
     centerGrid.add(createButton, 1, 1);
+    centerGrid.add(botButton, 2, 1);
     mainPane.setCenter(centerGrid);
 
     // Top: status label.

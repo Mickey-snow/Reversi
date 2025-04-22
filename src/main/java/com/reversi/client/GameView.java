@@ -170,7 +170,8 @@ public class GameView {
    */
   public void showGameOver(String displayString) {
     Platform.runLater(() -> {
-      statusLabel.setText("Game Over: " + displayString);
+      baseStatus = "Game Over: " + displayString;
+      statusLabel.setText(baseStatus);
       // Disable all board buttons to prevent further moves.
       for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {

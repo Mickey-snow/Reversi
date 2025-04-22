@@ -1,4 +1,4 @@
-package com.reversi.experimental;
+package com.reversi.client;
 
 import ai.onnxruntime.OrtException;
 import ai.onnxruntime.OrtSession;
