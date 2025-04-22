@@ -1,0 +1,24 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "AlphaZeroNet Response",
+    "type": "object",
+    "properties": {
+	"policy": {
+	    "type": "array",
+	    "description": "Batch of policy outputs, shape [batch_size, 64]",
+	    "items": {
+		"type": "array",
+		"minItems": 64,
+		"maxItems": 64,
+		"items": { "type": "number" }
+	    }
+	},
+	"value": {
+	    "type": "array",
+	    "description": "Batch of value outputs, shape [batch_size], each in [-1,1]",
+	    "items": { "type": "number" }
+	}
+    },
+    "required": ["policy", "value"],
+    "additionalProperties": false
+}

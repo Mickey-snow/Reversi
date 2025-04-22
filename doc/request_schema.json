@@ -1,0 +1,29 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "AlphaZeroNet Request",
+    "type": "object",
+    "properties": {
+	"input": {
+	    "type": "array",
+	    "description": "Batch of board states, shape [batch_size, 2, 8, 8]",
+	    "items": {
+		"type": "array",
+		"minItems": 2,
+		"maxItems": 2,
+		"items": {
+		    "type": "array",
+		    "minItems": 8,
+		    "maxItems": 8,
+		    "items": {
+			"type": "array",
+			"minItems": 8,
+			"maxItems": 8,
+			"items": { "type": "number" }
+		    }
+		}
+	    }
+	}
+    },
+    "required": ["input"],
+    "additionalProperties": false
+}
