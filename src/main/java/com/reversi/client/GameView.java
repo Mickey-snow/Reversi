@@ -20,7 +20,7 @@ public class GameView {
   private String baseStatus = "";
 
   private IController controller;
-  private Player us;
+  private Player us, turn;
   private long blackTime, whiteTime;
 
   private Timer timer;
@@ -35,12 +35,17 @@ public class GameView {
     timer.scheduleAtFixedRate(new TimerTask() {
       @Override
       public void run() {
-        blackTime -= 100;
-        whiteTime -= 100;
-        if (blackTime < 0)
-          blackTime = 0;
-        if (whiteTime < 0)
-          whiteTime = 0;
+        if (turn == Player.Black) {
+          blackTime -= 100;
+          if (blackTime < 0)
+            blackTime = 0;
+        }
+
+        if (turn == Player.White) {
+          whiteTime -= 100;
+          if (whiteTime < 0)
+            whiteTime = 0;
+        }
 
         Platform.runLater(() -> {
           final String dispblackTime = formatTime(blackTime);
@@ -110,6 +115,8 @@ public class GameView {
   public void updateGame(ReversiGame game) {
     // Iterate over each board cell.
     Platform.runLater(() -> {
+      turn = game.getCurrentPlayer();
+
       for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
           Player disc = game.getBoard().get(i, j);
@@ -126,8 +133,7 @@ public class GameView {
             if (!btn.getStyleClass().contains("white-disc"))
               btn.getStyleClass().add("white-disc");
 
-          } else if (game.getCurrentPlayer() == us &&
-                     game.getBoard().isValidMove(i, j, us)) {
+          } else if (turn == us && game.getBoard().isValidMove(i, j, us)) {
             btn.setText(".");
             btn.getStyleClass().removeAll("black-disc", "white-disc");
             if (!btn.getStyleClass().contains("possible-disc"))
@@ -142,8 +148,7 @@ public class GameView {
       }
 
       // Update the base status with current player's turn.
-      String currentTurn =
-          game.getCurrentPlayer() == us ? "Your's turn" : "Opponent's turn";
+      String currentTurn = turn == us ? "Your's turn" : "Opponent's turn";
       baseStatus = currentTurn;
       statusLabel.setText(baseStatus);
     });
