@@ -19,7 +19,7 @@ public class GameView {
   // additional fields to preserve last status content if needed
   private String baseStatus = "";
 
-  private ServerSocket serverSocket;
+  private IController controller;
   private Player us;
   private long blackTime, whiteTime;
 
@@ -28,7 +28,7 @@ public class GameView {
   public GameView() {
     createComponents();
     layoutComponents();
-    this.serverSocket = null;
+    this.controller = null;
     this.blackTime = this.whiteTime = 0;
 
     this.timer = new Timer();
@@ -62,8 +62,8 @@ public class GameView {
     }, 0, 100);
   }
 
-  public void setServerSocket(ServerSocket serverSocket) {
-    this.serverSocket = serverSocket;
+  public void setController(IController controller) {
+    this.controller = controller;
   }
 
   public void setUs(Player us) { this.us = us; }
@@ -87,7 +87,7 @@ public class GameView {
         btn.getStyleClass().add("board-button");
         btn.setPrefSize(50, 50);
         final int row = i, col = j;
-        btn.setOnAction(e -> { serverSocket.sendMove(row, col); });
+        btn.setOnAction(e -> { controller.sendMove(row, col); });
         boardButtons[i][j] = btn;
         boardGrid.add(btn, j, i); // Note: column index then row index
       }

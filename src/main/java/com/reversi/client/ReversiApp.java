@@ -40,7 +40,7 @@ public class ReversiApp extends Application {
 
     // Create an instance of the game view.
     this.gameView = new GameView();
-    gameView.setServerSocket(serverSocket);
+    gameView.setController(serverSocket);
     gameView.getGamePane().setVisible(false);
 
     rootPane.getChildren().addAll(lobbyView.getMainPane(),

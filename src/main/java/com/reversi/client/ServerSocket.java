@@ -8,7 +8,7 @@ import java.net.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ServerSocket {
+public class ServerSocket implements IController {
   private static final Logger logger =
       LoggerFactory.getLogger(ServerSocket.class);
 
