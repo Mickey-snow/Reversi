@@ -4,7 +4,6 @@ import ai.onnxruntime.*;
 import ai.onnxruntime.OrtSession.SessionOptions;
 import com.reversi.common.Player;
 import com.reversi.common.ReversiGame;
-import com.reversi.experimental.OnnxIO;
 import java.nio.FloatBuffer;
 import java.util.Collections;
 import java.util.Map;
