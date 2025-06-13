@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import com.reversi.common.GameRecord;
 import org.junit.jupiter.api.Test;
 
 public class MessageTest {
@@ -186,5 +187,28 @@ public class MessageTest {
     Message.GameOver gameoverDeserialized =
         (Message.GameOver)deserialized.getMessage();
     assertTrue(reason.equals(gameoverDeserialized.getReason()));
+  }
+
+  @Test
+  void testSerializeDeserializeHistoryRequest() {
+    var msg = new Message(new Message.HistoryRequest());
+    String json = assertDoesNotThrow(() -> serialize(msg));
+    assertNotNull(json);
+    Message deserialized = assertDoesNotThrow(() -> deserialize(json));
+    assertEquals(Message.Type.HistoryRequest, deserialized.getType());
+  }
+
+  @Test
+  void testSerializeDeserializeHistoryData() {
+    java.util.List<GameRecord> list = new java.util.ArrayList<>();
+    list.add(new GameRecord('B', 10, 5, 1L));
+    var msg = new Message(new Message.HistoryData(list));
+    String json = assertDoesNotThrow(() -> serialize(msg));
+    assertNotNull(json);
+    Message deserialized = assertDoesNotThrow(() -> deserialize(json));
+    assertEquals(Message.Type.HistoryData, deserialized.getType());
+    Message.HistoryData data = (Message.HistoryData)deserialized.getMessage();
+    assertEquals(1, data.getRecords().size());
+    assertEquals('B', data.getRecords().get(0).getWinner());
   }
 }

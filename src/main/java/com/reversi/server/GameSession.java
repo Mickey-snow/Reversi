@@ -7,6 +7,9 @@ import com.reversi.common.Message;
 import com.reversi.common.Player;
 import com.reversi.common.ReversiGame;
 import com.reversi.common.Ticker;
+import com.reversi.common.GameRecord;
+import com.reversi.common.Board;
+import com.reversi.server.HistoryStore;
 
 public class GameSession {
   private ReversiGame game;
@@ -15,11 +18,13 @@ public class GameSession {
   private boolean gameOver = false;
 
   private FischerClock clock;
+  private HistoryStore historyStore;
 
-  public GameSession(ClientSocket black, ClientSocket white) {
+  public GameSession(ClientSocket black, ClientSocket white, HistoryStore store) {
     this.game = new ReversiGame();
     this.blackPlayer = black;
     this.whitePlayer = white;
+    this.historyStore = store;
 
     this.clock = new FischerClock(100000, 1000, false);
     var eventBus = new EventBus();
@@ -36,22 +41,41 @@ public class GameSession {
     this.clock.start();
   }
 
-  private synchronized void onTimeout() {
+  private GameRecord createRecord() {
+    Board board = game.getBoard();
+    int black = 0, white = 0;
+    for (int i = 0; i < Board.BOARD_SIZE; i++) {
+      for (int j = 0; j < Board.BOARD_SIZE; j++) {
+        var p = board.get(i, j);
+        if (p == Player.Black)
+          black++;
+        else if (p == Player.White)
+          white++;
+      }
+    }
+    char w = game.getWinner() == Player.None ? '.' : game.getWinner().toChar();
+    return new GameRecord(w, black, white, System.currentTimeMillis());
+  }
+
+  private synchronized void finishGame(String blackMsg, String whiteMsg) {
     if (gameOver)
       return;
     gameOver = true;
-    // The current player has timed out – they lose.
+    clock.stop();
+    blackPlayer.sendMessage(new Message(new Message.GameOver(blackMsg)));
+    whitePlayer.sendMessage(new Message(new Message.GameOver(whiteMsg)));
+    if (historyStore != null)
+      historyStore.addRecord(createRecord());
+  }
+
+  private synchronized void onTimeout() {
+    if (gameOver)
+      return;
     Player current = game.getCurrentPlayer();
     if (current == Player.Black) {
-      blackPlayer.sendMessage(
-          new Message(new Message.GameOver("Time expired, you lose")));
-      whitePlayer.sendMessage(
-          new Message(new Message.GameOver("Opponent timed out, you win")));
+      finishGame("Time expired, you lose", "Opponent timed out, you win");
     } else if (current == Player.White) {
-      whitePlayer.sendMessage(
-          new Message(new Message.GameOver("Time expired, you lose")));
-      blackPlayer.sendMessage(
-          new Message(new Message.GameOver("Opponent timed out, you win")));
+      finishGame("Opponent timed out, you win", "Time expired, you lose");
     }
   }
 
@@ -80,8 +104,24 @@ public class GameSession {
       return false;
 
     boolean moveMade = game.makeMove(row, col);
-    if (moveMade)
+    if (moveMade) {
       clock.swap();
+      if (game.isGameOver()) {
+        Player winner = game.getWinner();
+        String blackMsg, whiteMsg;
+        if (winner == Player.Black) {
+          blackMsg = "you win";
+          whiteMsg = "you lose";
+        } else if (winner == Player.White) {
+          blackMsg = "you lose";
+          whiteMsg = "you win";
+        } else {
+          blackMsg = "draw";
+          whiteMsg = "draw";
+        }
+        finishGame(blackMsg, whiteMsg);
+      }
+    }
     return moveMade;
   }
 

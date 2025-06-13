@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.reversi.server.HistoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,9 +20,9 @@ public class ServerMain {
   // ExecutorService for managing client tasks
   private final ExecutorService clientThreadPool =
       Executors.newCachedThreadPool();
-  // SessionHub takes care of all server-client messaging and game
-  // state updates.
-  private final SessionHub session = new SessionHub();
+  // SessionHub takes care of all server-client messaging and game state updates.
+  private final HistoryStore historyStore = new HistoryStore();
+  private final SessionHub session = new SessionHub(historyStore);
 
   private static final AtomicInteger clientCounter = new AtomicInteger(0);
   private int genClientId() { return clientCounter.incrementAndGet(); }
