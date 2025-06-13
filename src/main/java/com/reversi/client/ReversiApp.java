@@ -4,6 +4,10 @@ import com.reversi.common.EventBus;
 import com.reversi.common.EventListener;
 import com.reversi.common.Message;
 import com.reversi.common.Player;
+import com.reversi.common.GameRecord;
+import java.util.List;
+import java.util.Date;
+import javafx.scene.control.Alert;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
@@ -93,6 +97,17 @@ public class ReversiApp extends Application {
       case GameOver:
         Message.GameOver over = (Message.GameOver)msg.getMessage();
         gameView.showGameOver(over.getReason());
+        break;
+      case HistoryData:
+        Message.HistoryData hd = (Message.HistoryData)msg.getMessage();
+        List<GameRecord> records = hd.getRecords();
+        StringBuilder sb = new StringBuilder();
+        for (GameRecord r : records) {
+          sb.append(String.format("%1$tF %1$tT - B:%d W:%d Winner:%c%n", new Date(r.getTimestamp()), r.getBlackScore(), r.getWhiteScore(), r.getWinner()));
+        }
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, sb.toString());
+        alert.setHeaderText("Game History");
+        alert.showAndWait();
         break;
       case Invalid:
         // TODO: no-op for now

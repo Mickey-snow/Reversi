@@ -12,8 +12,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.util.List;
 import java.io.IOException;
 import java.util.Map;
+import com.reversi.common.GameRecord;
 
 @JsonSerialize(using = Message.Serializer.class)
 @JsonDeserialize(using = Message.Deserializer.class)
@@ -111,6 +113,19 @@ public class Message {
     public Map<String, LobbyRoom> getLobbyRooms() { return lobbyRooms; }
   }
 
+  public static class HistoryRequest {}
+
+  public static class HistoryData {
+    private final java.util.List<GameRecord> records;
+
+    @JsonCreator
+    public HistoryData(@JsonProperty("records") java.util.List<GameRecord> records) {
+      this.records = records;
+    }
+
+    public java.util.List<GameRecord> getRecords() { return records; }
+  }
+
   // Tagged union storage
   private final Object msg;
   private final Type type;
@@ -125,7 +140,9 @@ public class Message {
     LobbyReady,
     GameUpdate,
     LobbyCreate,
-    LobbyUpdate
+    LobbyUpdate,
+    HistoryRequest,
+    HistoryData
   }
 
   // Constructors for different message types.
@@ -164,6 +181,14 @@ public class Message {
   public Message(GameOver msg) {
     this.msg = msg;
     this.type = Type.GameOver;
+  }
+  public Message(HistoryRequest msg) {
+    this.msg = msg;
+    this.type = Type.HistoryRequest;
+  }
+  public Message(HistoryData msg) {
+    this.msg = msg;
+    this.type = Type.HistoryData;
   }
 
   // No-arg constructor for Jackson
@@ -246,6 +271,14 @@ public class Message {
         LobbyUpdate lobbyUpdate =
             mapper.treeToValue(msgNode, LobbyUpdate.class);
         return new Message(lobbyUpdate);
+
+      case HistoryRequest:
+        HistoryRequest historyReq = mapper.treeToValue(msgNode, HistoryRequest.class);
+        return new Message(historyReq);
+
+      case HistoryData:
+        HistoryData historyData = mapper.treeToValue(msgNode, HistoryData.class);
+        return new Message(historyData);
 
       default:
         throw new IllegalStateException("Unexpected type: " + typeStr);

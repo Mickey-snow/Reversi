@@ -16,6 +16,7 @@ public class LobbyView {
   private Button joinButton;
   private Button createButton;
   private Button botButton;
+  private Button historyButton;
   private Label lobbyStatusLabel;
   private ListView<String> roomsListView;
 
@@ -47,6 +48,8 @@ public class LobbyView {
 
     joinButton = new Button("Join Room");
     createButton = new Button("Create Room");
+
+    historyButton = new Button("History");
 
     // List view for available rooms.
     roomsListView = new ListView<>();
@@ -83,6 +86,11 @@ public class LobbyView {
     topBox.setAlignment(Pos.CENTER);
     topBox.setPadding(new Insets(10));
     mainPane.setTop(topBox);
+
+    HBox bottomBox = new HBox(historyButton);
+    bottomBox.setAlignment(Pos.CENTER);
+    bottomBox.setPadding(new Insets(10));
+    mainPane.setBottom(bottomBox);
   }
 
   private void attachListeners() {
@@ -104,6 +112,10 @@ public class LobbyView {
       } else {
         lobbyStatusLabel.setText("Room ID cannot be empty.");
       }
+    });
+
+    historyButton.setOnAction(e -> {
+      serverSocket.send(new Message(new Message.HistoryRequest()));
     });
 
     // Enable joining via double click on a room in the list.

@@ -8,6 +8,7 @@ import com.reversi.common.Message;
 import com.reversi.common.PlayerStatus;
 import com.reversi.common.ReversiGame;
 import com.reversi.server.events.GameStateChange;
+import com.reversi.server.HistoryStore;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,10 +25,13 @@ public class SessionHub {
   private final Map<String, LobbyRoom> lobbyRooms = new HashMap<>();
   private final Map<String, GameSession> activeGameSessions = new HashMap<>();
 
+  private final HistoryStore historyStore;
+
   private final EventBus eventBus = new EventBus();
   private final List<Object> listeners = new ArrayList<>();
 
-  public SessionHub() {
+  public SessionHub(HistoryStore store) {
+    this.historyStore = store;
     // Register event listeners.
     ClientMessageListener clientListener = new ClientMessageListener();
     GameSessionUpdateListener gameListener = new GameSessionUpdateListener();
@@ -57,6 +61,13 @@ public class SessionHub {
     else {
       for (var it : clients.values())
         it.sendMessage(message);
+    }
+  }
+
+  private void sendHistory(ClientSocket client) {
+    var message = new Message(new Message.HistoryData(historyStore.getHistory()));
+    if (client != null) {
+      client.sendMessage(message);
     }
   }
 
@@ -106,7 +117,7 @@ public class SessionHub {
           if (players.length == 2) {
             ClientSocket blackPlayer = clients.get(players[0]);
             ClientSocket whitePlayer = clients.get(players[1]);
-            GameSession gameSession = new GameSession(blackPlayer, whitePlayer);
+            GameSession gameSession = new GameSession(blackPlayer, whitePlayer, historyStore);
             synchronized (activeGameSessions) {
               activeGameSessions.put(room.getRoomName(), gameSession);
             }
@@ -146,6 +157,10 @@ public class SessionHub {
               "Received move from client {} with no active game session.",
               handler.getClientId());
         }
+        break;
+      }
+      case HistoryRequest: {
+        sendHistory(handler);
         break;
       }
       default:
